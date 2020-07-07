@@ -17,6 +17,7 @@ defmodule ExAwsChime.MixProject do
       {:ex_aws, "~> 2.1"},
       {:hackney, "~> 1.16"},
       {:jason, "~> 1.2"},
+      {:uuid, "~> 1.1"},
 
       # Non-runtime deps
       {:configparser_ex, "~> 4.0", runtime: false},

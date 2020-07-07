@@ -3,7 +3,6 @@ defmodule ExAws.Chime do
   alias ExAws.Operation.RestQuery
 
   # TODO:
-  # * Sensible ClientRequestToken in create_meeting
   # * Add all actions
   # * Add tag support where applicable
   # * Add max results/paging to List actions
@@ -15,7 +14,7 @@ defmodule ExAws.Chime do
   def create_meeting(meeting_id, opts \\ []) do
     data =
       %{
-        "ClientRequestToken" => "abcd",
+        "ClientRequestToken" => UUID.uuid4(),
         "ExternalMeetingId" => meeting_id
       }
       |> add_opts([meeting_region: "MeetingRegion"], opts)
