@@ -3,13 +3,24 @@ defmodule ExAws.Chime do
   See https://docs.aws.amazon.com/chime/latest/APIReference
   """
 
+  alias ExAws.Chime.AlexaForBusinessMetadata
+  alias ExAws.Chime.AccountSettings
+  alias ExAws.Chime.BusinessCallingSettings
   alias ExAws.Chime.CreateAttendeeRequestItem
+  alias ExAws.Chime.Credentials
+  alias ExAws.Chime.EmergencyCallingConfiguration
+  alias ExAws.Chime.LoggingConfiguration
   alias ExAws.Chime.MembershipItem
   alias ExAws.Chime.MeetingNotificationConfiguration
+  alias ExAws.Chime.Origination
+  alias ExAws.Chime.RetentionSettings
+  alias ExAws.Chime.StreamingConfiguration
   alias ExAws.Chime.Tag
+  alias ExAws.Chime.Termination
   alias ExAws.Chime.UpdatePhoneNumberRequestItem
   alias ExAws.Chime.UpdateUserRequestItem
   alias ExAws.Chime.VoiceConnectorItem
+  alias ExAws.Chime.VoiceConnectorSettings
   alias ExAws.Operation.JSON
   alias ExAws.Operation.RestQuery
 
@@ -705,6 +716,7 @@ defmodule ExAws.Chime do
     )
   end
 
+  @spec put_retention_settings(String.t(), RetentionSettings.t()) :: JSON.t()
   def put_retention_settings(account_id, retention_settings) do
     json_put_request(
       "/accounts/#{account_id}/retention-settings",
@@ -714,62 +726,132 @@ defmodule ExAws.Chime do
     )
   end
 
-  def put_voice_connector_emergency_calling_configuration() do
-    # TODO
+  @spec put_voice_connector_emergency_calling_configuration(
+          String.t(),
+          EmergencyCallingConfiguration.t()
+        ) :: JSON.t()
+  def put_voice_connector_emergency_calling_configuration(
+        voice_connector_id,
+        emergency_calling_configuration
+      ) do
+    json_put_request(
+      "/voice-connectors/#{voice_connector_id}/emergency-calling-configuration",
+      %{
+        "EmergencyCallingConfiguration" => struct_to_obj(emergency_calling_configuration)
+      }
+    )
   end
 
-  def put_voice_connector_logging_configuration() do
-    # TODO
+  @spec put_voice_connector_logging_configuration(String.t(), LoggingConfiguration.t()) ::
+          JSON.t()
+  def put_voice_connector_logging_configuration(voice_connector_id, logging_configuration) do
+    json_put_request(
+      "/voice-connectors/#{voice_connector_id}/logging-configuration",
+      %{
+        "LoggingConfiguration" => struct_to_obj(logging_configuration)
+      }
+    )
   end
 
-  def put_voice_connector_origination() do
-    # TODO
+  @spec put_voice_connector_origination(String.t(), Origination.t()) :: JSON.t()
+  def put_voice_connector_origination(voice_connector_id, origination) do
+    json_put_request(
+      "/voice-connectors/#{voice_connector_id}/origination",
+      %{
+        "Origination" => struct_to_obj(origination)
+      }
+    )
   end
 
-  def put_voice_connector_proxy() do
-    # TODO
+  @spec put_voice_connector_proxy(String.t(), integer(), boolean() | nil, String.t() | nil, [
+          String.t()
+        ]) :: JSON.t()
+  def put_voice_connector_proxy(
+        voice_connector_id,
+        default_session_expiry_minutes,
+        disabled \\ nil,
+        fall_back_phone_number \\ nil,
+        phone_number_pool_countries
+      ) do
+    json_put_request(
+      "/voice-connectors/#{voice_connector_id}/programmable-numbers/proxy",
+      %{
+        "DefaultSessionExpiryMinutes" => default_session_expiry_minutes,
+        "Disabled" => disabled,
+        "FallBackPhoneNumber" => fall_back_phone_number,
+        "PhoneNumberPoolCountries" => phone_number_pool_countries
+      }
+    )
   end
 
-  def put_voice_connector_streaming_configuration() do
-    # TODO
+  @spec put_voice_connector_streaming_configuration(String.t(), StreamingConfiguration.t()) ::
+          JSON.t()
+  def put_voice_connector_streaming_configuration(voice_connector_id, streaming_configuration) do
+    json_put_request(
+      "/voice-connectors/#{voice_connector_id}/streaming-configuration",
+      %{
+        "StreamingConfiguration" => struct_to_obj(streaming_configuration)
+      }
+    )
   end
 
-  def put_voice_connector_termination() do
-    # TODO
+  @spec put_voice_connector_termination(String.t(), Termination.t()) :: JSON.t()
+  def put_voice_connector_termination(voice_connector_id, termination) do
+    json_put_request(
+      "/voice-connectors/#{voice_connector_id}/termination",
+      %{
+        "Termination" => struct_to_obj(termination)
+      }
+    )
   end
 
-  def put_voice_connector_termination_credentials() do
-    # TODO
+  @spec put_voice_connector_termination_credentials(String.t(), [Credentials.t()] | nil) ::
+          JSON.t()
+  def put_voice_connector_termination_credentials(voice_connector_id, credentials) do
+    json_request(
+      "/voice-connectors/#{voice_connector_id}/termination/credentials/operation=put",
+      %{
+        "Credentials" => struct_to_obj(credentials)
+      }
+    )
   end
 
+  @spec redact_conversation_message(String.t(), String.t(), String.t()) :: RestQuery.t()
   def redact_conversation_message(account_id, conversation_id, message_id) do
     post_request(
       "/accounts/#{account_id}/conversations/#{conversation_id}/messages/#{message_id}?operation=redact"
     )
   end
 
+  @spec redact_room_message(String.t(), String.t(), String.t()) :: RestQuery.t()
   def redact_room_message(account_id, room_id, message_id) do
     post_request(
       "/accounts/#{account_id}/rooms/#{room_id}/messages/#{message_id}?operation=redact"
     )
   end
 
+  @spec regenerate_security_token(String.t(), String.t()) :: RestQuery.t()
   def regenerate_security_token(account_id, bot_id) do
     post_request("/accounts/#{account_id}/bots/#{bot_id}?operation=regenerate-security-token")
   end
 
+  @spec reset_personal_pin(String.t(), String.t()) :: RestQuery.t()
   def reset_personal_pin(account_id, user_id) do
     post_request("/accounts/#{account_id}/users/#{user_id}?operation=reset-personal-pin")
   end
 
+  @spec restore_phone_number(String.t()) :: RestQuery.t()
   def restore_phone_number(phone_number_id) do
     post_request("/phone-numbers/#{phone_number_id}?operation=restore")
   end
 
+  @spec search_available_phone_numbers() :: RestQuery.t()
   def search_available_phone_numbers() do
-    # TODO
+    # TODO: Filters
+    rest_request("/search?type=phone-number")
   end
 
+  @spec tag_attendee(String.t(), String.t(), [Tag.t()]) :: RestQuery.t()
   def tag_attendee(meeting_id, attendee_id, tags) do
     json_request(
       "/meetings/#{meeting_id}/attendees/#{attendee_id}/tags?operation=add",
@@ -779,6 +861,7 @@ defmodule ExAws.Chime do
     )
   end
 
+  @spec tag_meeting(String.t(), [Tag.t()]) :: JSON.t()
   def tag_meeting(meeting_id, tags) do
     json_request(
       "/meetings/#{meeting_id}/tags?operation=add",
@@ -788,6 +871,7 @@ defmodule ExAws.Chime do
     )
   end
 
+  @spec tag_resource(String.t(), [Tag.t()]) :: JSON.t()
   def tag_resource(resource_arn, tags) do
     json_request(
       "/tags?operation=add",
@@ -798,6 +882,7 @@ defmodule ExAws.Chime do
     )
   end
 
+  @spec untag_attendee(String.t(), String.t(), [String.t()]) :: JSON.t()
   def untag_attendee(meeting_id, attendee_id, tag_keys) do
     json_request(
       "/meetings/#{meeting_id}/attendees/#{attendee_id}/tags?operation=delete",
@@ -807,6 +892,7 @@ defmodule ExAws.Chime do
     )
   end
 
+  @spec untag_meeting(String.t(), [String.t()]) :: JSON.t()
   def untag_meeting(meeting_id, tag_keys) do
     json_request(
       "/meetings/#{meeting_id}/tags?operation=delete",
@@ -816,6 +902,7 @@ defmodule ExAws.Chime do
     )
   end
 
+  @spec untag_resource(String.t(), [String.t()]) :: JSON.t()
   def untag_resource(resource_arn, tag_keys) do
     json_request(
       "/tags?operation=delete",
@@ -826,6 +913,7 @@ defmodule ExAws.Chime do
     )
   end
 
+  @spec update_account(String.t(), String.t()) :: JSON.t()
   def update_account(account_id, name) do
     json_request(
       "/accounts/#{account_id}",
@@ -835,10 +923,17 @@ defmodule ExAws.Chime do
     )
   end
 
-  def update_account_settings() do
-    # TODO
+  @spec update_account_settings(String.t(), AccountSettings.t()) :: JSON.t()
+  def update_account_settings(account_id, account_settings) do
+    json_put_request(
+      "/accounts/#{account_id}/settings",
+      %{
+        "AccountSettings" => struct_to_obj(account_settings)
+      }
+    )
   end
 
+  @spec update_bot(String.t(), String.t(), boolean() | nil) :: JSON.t()
   def update_bot(account_id, bot_id, disabled \\ nil) do
     json_request(
       "/accounts/#{account_id}/bots/#{bot_id}",
@@ -848,22 +943,52 @@ defmodule ExAws.Chime do
     )
   end
 
-  def update_global_settings() do
-    # TODO
+  @spec update_global_settings(BusinessCallingSettings.t(), VoiceConnectorSettings.t()) ::
+          JSON.t()
+  def update_global_settings(business_calling, voice_connector) do
+    json_put_request(
+      "/settings",
+      %{
+        "BusinessCalling" => business_calling,
+        "VoiceConnector" => voice_connector
+      }
+    )
   end
 
-  def update_phone_number() do
-    # TODO
+  @spec update_phone_number(String.t(), String.t() | nil, String.t() | nil) :: JSON.t()
+  def update_phone_number(phone_number_id, calling_name \\ nil, product_type \\ nil) do
+    json_request(
+      "/phone-numbers/#{phone_number_id}",
+      %{
+        "CallingName" => calling_name,
+        "ProductType" => product_type
+      }
+    )
   end
 
-  def update_phone_number_settings() do
-    # TODO
+  @spec update_phone_number_settings(String.t()) :: JSON.t()
+  def update_phone_number_settings(calling_name) do
+    json_put_request(
+      "/settings/phone-number",
+      %{
+        "CallingName" => calling_name
+      }
+    )
   end
 
-  def update_proxy_session() do
-    # TODO
+  @spec update_proxy_session(String.t(), String.t(), [String.t()], pos_integer() | nil) ::
+          JSON.t()
+  def update_proxy_session(proxy_session_id, voice_connector_id, capabilities, expiry_minutes) do
+    json_request(
+      "/voice-connectors/#{voice_connector_id}/proxy-sessions/#{proxy_session_id}",
+      %{
+        "Capabilities" => capabilities,
+        "ExpiryMinutes" => expiry_minutes
+      }
+    )
   end
 
+  @spec update_room(String.t(), String.t(), String.t() | nil) :: JSON.t()
   def update_room(account_id, room_id, name \\ nil) do
     json_request(
       "/accounts/#{account_id}/rooms/#{room_id}",
@@ -873,6 +998,7 @@ defmodule ExAws.Chime do
     )
   end
 
+  @spec update_room_membership(String.t(), String.t(), String.t(), String.t() | nil) :: JSON.t()
   def update_room_membership(account_id, room_id, member_id, role \\ nil) do
     json_request(
       "/accounts/#{account_id}/rooms/#{room_id}/memberships/#{member_id}",
@@ -882,6 +1008,13 @@ defmodule ExAws.Chime do
     )
   end
 
+  @spec update_user(
+          String.t(),
+          String.t(),
+          AlexaForBusinessMetadata.t() | nil,
+          String.t() | nil,
+          String.t() | nil
+        ) :: JSON.t()
   def update_user(
         account_id,
         user_id,
@@ -899,10 +1032,17 @@ defmodule ExAws.Chime do
     )
   end
 
-  def update_user_settings() do
-    # TODO
+  @spec update_user_settings(String.t(), String.t(), UserSettings.t()) :: JSON.t()
+  def update_user_settings(account_id, user_id, user_settings) do
+    json_put_request(
+      "/accounts/#{account_id}/users/#{user_id}/settings",
+      %{
+        "UserSettings" => user_settings
+      }
+    )
   end
 
+  @spec update_voice_connector(String.t(), String.t(), boolean()) :: JSON.t()
   def update_voice_connector(voice_connector_id, name, require_encryption) do
     json_request(
       "/voice-connectors/#{voice_connector_id}",
@@ -913,8 +1053,15 @@ defmodule ExAws.Chime do
     )
   end
 
-  def update_voice_connector_group() do
-    # TODO
+  @spec update_voice_connector_group(String.t(), String.t(), VoiceConnectorItem.t()) :: JSON.t()
+  def update_voice_connector_group(voice_connector_group_id, name, voice_connector_items) do
+    json_put_request(
+      "/voice-connectors/#{voice_connector_group_id}",
+      %{
+        "Name" => name,
+        "VoiceConnectorItems" => voice_connector_items
+      }
+    )
   end
 
   ### HELPERS
