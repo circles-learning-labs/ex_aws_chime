@@ -25,7 +25,6 @@ defmodule ExAws.Chime do
   alias ExAws.Operation.RestQuery
 
   # TODO:
-  # * Add all actions
   # * Add max results/paging to List actions
   # * Add results filter to List actions
   # * Strip out nils
