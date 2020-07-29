@@ -9,6 +9,7 @@ defmodule ExAws.Chime do
   alias ExAws.Chime.Tag
   alias ExAws.Chime.UpdatePhoneNumberRequestItem
   alias ExAws.Chime.UpdateUserRequestItem
+  alias ExAws.Chime.VoiceConnectorItem
   alias ExAws.Operation.JSON
   alias ExAws.Operation.RestQuery
 
@@ -239,10 +240,40 @@ defmodule ExAws.Chime do
     )
   end
 
-  def create_proxy_session() do
-    # TODO
+  @spec create_proxy_session(
+          [String.t()],
+          pos_integer() | nil,
+          String.t() | nil,
+          GeoMatchParams.t() | nil,
+          String.t() | nil,
+          String.t() | nil,
+          [String.t()]
+        ) :: JSON.t()
+  def create_proxy_session(
+        voice_connector_id,
+        capabilities,
+        expiry_minutes \\ nil,
+        geo_match_level \\ nil,
+        geo_match_params \\ nil,
+        name \\ nil,
+        number_selection_behavior \\ nil,
+        participant_phone_numbers
+      ) do
+    json_request(
+      "/voice-connectors/#{voice_connector_id}",
+      %{
+        "Capabilities" => capabilities,
+        "ExpiryMinutes" => expiry_minutes,
+        "GeoMatchLevel" => geo_match_level,
+        "GeoMatchParams" => struct_to_obj(geo_match_params),
+        "Name" => name,
+        "NumberSelectionBehavior" => number_selection_behavior,
+        "ParticipantPhoneNumbers" => participant_phone_numbers
+      }
+    )
   end
 
+  @spec create_room(String.t(), String.t()) :: JSON.t()
   def create_room(account_id, name) do
     json_request(
       "/accoutns/#{account_id}/rooms",
@@ -253,6 +284,7 @@ defmodule ExAws.Chime do
     )
   end
 
+  @spec create_room_membership(String.t(), String.t(), String.t(), String.t() | nil) :: JSON.t()
   def create_room_membership(account_id, room_id, member_id, role \\ nil) do
     json_request(
       "/accounts/#{account_id}/rooms/#{room_id}/memberships",
@@ -263,6 +295,7 @@ defmodule ExAws.Chime do
     )
   end
 
+  @spec create_user(String.t(), String.t() | nil, String.t() | nil, String.t() | nil) :: JSON.t()
   def create_user(account_id, email \\ nil, username \\ nil, user_type \\ nil) do
     json_request(
       "/accounts/#{account_id}/users/operation=create",
@@ -274,74 +307,105 @@ defmodule ExAws.Chime do
     )
   end
 
-  def create_voice_connector() do
-    # TODO
+  @spec create_voice_connector(String.t() | nil, String.t(), boolean()) :: JSON.t()
+  def create_voice_connector(aws_region \\ nil, name, require_encryption) do
+    json_request(
+      "/voice-connectors",
+      %{
+        "AwsRegion" => aws_region,
+        "Name" => name,
+        "RequireEncryption" => require_encryption
+      }
+    )
   end
 
-  def create_voice_connector_group() do
-    # TODO
+  @spec create_voice_connector_group(String.t(), [VoiceConnectorItem.t()] | nil) :: JSON.t()
+  def create_voice_connector_group(name, voice_connector_items \\ nil) do
+    json_request(
+      "/voice-connector-groups",
+      %{
+        "Name" => name,
+        "VoiceConnectorItems" => structs_to_objs(voice_connector_items)
+      }
+    )
   end
 
+  @spec delete_account(String.t()) :: RestQuery.t()
   def delete_account(account_id) do
     delete_request("/accounts/#{account_id}")
   end
 
+  @spec delete_attendee(String.t(), String.t()) :: RestQuery.t()
   def delete_attendee(meeting_id, attendee_id) do
     delete_request("/meetings/#{meeting_id}/attendees/#{attendee_id}")
   end
 
+  @spec delete_events_configuration(String.t(), String.t()) :: RestQuery.t()
   def delete_events_configuration(account_id, bot_id) do
     delete_request("/accounts/#{account_id}/bots/#{bot_id}/events-configuration")
   end
 
+  @spec delete_meeting(String.t()) :: RestQuery.t()
   def delete_meeting(meeting_id) do
     delete_request("/meetings/#{meeting_id}")
   end
 
+  @spec delete_phone_number(String.t()) :: RestQuery.t()
   def delete_phone_number(phone_number_id) do
     delete_request("/phone-numbers/#{phone_number_id}")
   end
 
-  def delete_proxy_session() do
-    # TODO
+  @spec delete_proxy_session(String.t(), String.t()) :: RestQuery.t()
+  def delete_proxy_session(voice_connector_id, proxy_session_id) do
+    delete_request("/voice-connectors/#{voice_connector_id}/proxy-sessions/#{proxy_session_id}")
   end
 
+  @spec delete_room(String.t(), String.t()) :: RestQuery.t()
   def delete_room(account_id, room_id) do
     delete_request("/accounts/#{account_id}/rooms/#{room_id}")
   end
 
+  @spec delete_room_membership(String.t(), String.t(), String.t()) :: RestQuery.t()
   def delete_room_membership(account_id, room_id, member_id) do
     delete_request("/accounts/#{account_id}/rooms/#{room_id}/memberships/#{member_id}")
   end
 
+  @spec delete_voice_connector(String.t()) :: RestQuery.t()
   def delete_voice_connector(voice_connector_id) do
     delete_request("/voice-connectors/#{voice_connector_id}")
   end
 
+  @spec delete_voice_connector_emergency_calling_configuration(String.t()) :: RestQuery.t()
   def delete_voice_connector_emergency_calling_configuration(voice_connector_id) do
     delete_request("/voice-connectors/#{voice_connector_id}/emergency-calling-configuration")
   end
 
+  @spec delete_voice_connector_group(String.t()) :: RestQuery.t()
   def delete_voice_connector_group(voice_connector_group_id) do
     delete_request("/voice-connector-groups/#{voice_connector_group_id}")
   end
 
+  @spec delete_voice_connector_origination(String.t()) :: RestQuery.t()
   def delete_voice_connector_origination(voice_connector_id) do
     delete_request("/voice-connectors/#{voice_connector_id}/origination")
   end
 
+  @spec delete_voice_connector_proxy(String.t()) :: RestQuery.t()
   def delete_voice_connector_proxy(voice_connector_id) do
     delete_request("/voice-connectors/#{voice_connector_id}/programmable-numbers/proxy")
   end
 
+  @spec delete_voice_connector_streaming_configuration(String.t()) :: RestQuery.t()
   def delete_voice_connector_streaming_configuration(voice_connector_id) do
     delete_request("/voice-connectors/#{voice_connector_id}/streaming-configuration")
   end
 
+  @spec delete_voice_connector_termination(String.t()) :: RestQuery.t()
   def delete_voice_connector_termination(voice_connector_id) do
     delete_request("/voice-connectors/#{voice_connector_id}/termination")
   end
 
+  @spec delete_voice_connector_termination_credentials(String.t(), [String.t()]) :: JSON.t()
   def delete_voice_connector_termination_credentials(voice_connector_id, usernames) do
     json_request(
       "/voice-connectors/#{voice_connector_id}/termination/credentials?operation=delete",
@@ -351,118 +415,167 @@ defmodule ExAws.Chime do
     )
   end
 
+  @spec disassociate_phone_number_from_user(String.t(), String.t()) :: RestQuery.t()
   def disassociate_phone_number_from_user(account_id, user_id) do
     post_request("/accounts/#{account_id}/users/#{user_id}?operation?disassociate-phone_number")
   end
 
-  def disassociate_phone_numbers_from_voice_connector() do
-    # TODO
+  @spec disassociate_phone_numbers_from_voice_connector(String.t(), [String.t()]) :: JSON.t()
+  def disassociate_phone_numbers_from_voice_connector(voice_connector_id, phone_numbers) do
+    json_request(
+      "/voice-connectors/#{voice_connector_id}?operation=disassociate-phone-numbers",
+      %{
+        "E164PhoneNumbers" => phone_numbers
+      }
+    )
   end
 
-  def disassociate_phone_numbers_from_voice_connector_group() do
-    # TODO
+  @spec disassociate_phone_numbers_from_voice_connector_group(String.t(), [String.t()]) ::
+          JSON.t()
+  def disassociate_phone_numbers_from_voice_connector_group(
+        voice_connector_group_id,
+        phone_numbers
+      ) do
+    json_request(
+      "/voice-connector-groups/#{voice_connector_group_id}?operation=disassociate-phone-numbers",
+      %{
+        "E164PhoneNumbers" => phone_numbers
+      }
+    )
   end
 
-  def disassociate_signin_delegate_groups_from_account() do
+  @spec disassociate_signin_delegate_groups_from_account(String.t(), [String.t()]) :: JSON.t()
+  def disassociate_signin_delegate_groups_from_account(account_id, group_names) do
     # TODO
+    json_request(
+      "/accounts/#{account_id}?operation=disassociate-signin-delegate-groups",
+      %{
+        "GroupNames" => group_names
+      }
+    )
   end
 
+  @spec get_account(String.t()) :: RestQuery.t()
   def get_account(account_id) do
     rest_request("/accounts/#{account_id}")
   end
 
+  @spec get_account_settings(String.t()) :: RestQuery.t()
   def get_account_settings(account_id) do
     rest_request("/accounts/#{account_id}/settings")
   end
 
+  @spec get_attendee(String.t(), String.t()) :: RestQuery.t()
   def get_attendee(meeting_id, attendee_id) do
     rest_request("/meetings/#{meeting_id}/attendees/#{attendee_id}")
   end
 
+  @spec get_bot(String.t(), String.t()) :: RestQuery.t()
   def get_bot(account_id, bot_id) do
     rest_request("/accounts/#{account_id}/bots/#{bot_id}")
   end
 
-  def get_events_configuration() do
-    # TODO
+  @spec get_events_configuration(String.t(), String.t()) :: RestQuery.t()
+  def get_events_configuration(account_id, bot_id) do
+    rest_request("/accounts/#{account_id}/bots/#{bot_id}/events-configuration")
   end
 
+  @spec get_global_settings() :: RestQuery.t()
   def get_global_settings() do
     rest_request("/settings")
   end
 
+  @spec get_meeting(String.t()) :: RestQuery.t()
   def get_meeting(meeting_id) do
     rest_request("/meetings/#{meeting_id}")
   end
 
+  @spec get_phone_number(String.t()) :: RestQuery.t()
   def get_phone_number(phone_number_id) do
     rest_request("/phone-numbers/#{phone_number_id}")
   end
 
+  @spec get_phone_number_order(String.t()) :: RestQuery.t()
   def get_phone_number_order(phone_number_order_id) do
     rest_request("/phone-number-orders/#{phone_number_order_id}")
   end
 
+  @spec get_phone_number_settings() :: RestQuery.t()
   def get_phone_number_settings() do
     rest_request("/settings/phone-number")
   end
 
-  def get_proxy_session() do
-    # TODO
+  @spec get_proxy_session(String.t(), String.t()) :: RestQuery.t()
+  def get_proxy_session(voice_connector_id, proxy_session_id) do
+    rest_request("/voice-connectors/#{voice_connector_id}/proxy-sessoins/#{proxy_session_id}")
   end
 
+  @spec get_retention_settings(String.t()) :: RestQuery.t()
   def get_retention_settings(account_id) do
     rest_request("/accounts/#{account_id}/retention-settings")
   end
 
+  @spec get_room(String.t(), String.t()) :: RestQuery.t()
   def get_room(account_id, room_id) do
     rest_request("/accounts/#{account_id}/rooms/#{room_id}")
   end
 
+  @spec get_user(String.t(), String.t()) :: RestQuery.t()
   def get_user(account_id, user_id) do
     rest_request("/accounts/#{account_id}/users/#{user_id}")
   end
 
+  @spec get_user_settings(String.t(), String.t()) :: RestQuery.t()
   def get_user_settings(account_id, user_id) do
     rest_request("/accounts/#{account_id}/users/#{user_id}/settings")
   end
 
+  @spec get_voice_connector(String.t()) :: RestQuery.t()
   def get_voice_connector(voice_connector_id) do
     rest_request("/voice-connectors/#{voice_connector_id}")
   end
 
+  @spec get_voice_connector_emergency_calling_configuration(String.t()) :: RestQuery.t()
   def get_voice_connector_emergency_calling_configuration(voice_connector_id) do
     rest_request("/voice-connectors/#{voice_connector_id}/emergency-calling-configuration")
   end
 
+  @spec get_voice_connector_group(String.t()) :: RestQuery.t()
   def get_voice_connector_group(voice_connector_group_id) do
     rest_request("/voice-connector-group/#{voice_connector_group_id}")
   end
 
+  @spec get_voice_connector_logging_configuration(String.t()) :: RestQuery.t()
   def get_voice_connector_logging_configuration(voice_connector_id) do
     rest_request("/voice-connectors/#{voice_connector_id}/logging-configuration")
   end
 
+  @spec get_voice_connector_origination(String.t()) :: RestQuery.t()
   def get_voice_connector_origination(voice_connector_id) do
     rest_request("/voice-connectors/#{voice_connector_id}/origination")
   end
 
+  @spec get_voice_connector_proxy(String.t()) :: RestQuery.t()
   def get_voice_connector_proxy(voice_connector_id) do
     rest_request("/voice-connectors/#{voice_connector_id}/programmable-numbers/proxy")
   end
 
+  @spec get_voice_connector_streaming_configuration(String.t()) :: RestQuery.t()
   def get_voice_connector_streaming_configuration(voice_connector_id) do
     rest_request("/voice-connectors/#{voice_connector_id}/streaming-configuration")
   end
 
+  @spec get_voice_connector_termination(String.t()) :: RestQuery.t()
   def get_voice_connector_termination(voice_connector_id) do
     rest_request("/voice-connectors/#{voice_connector_id}/termination")
   end
 
+  @spec get_voice_connector_termination_health(String.t()) :: RestQuery.t()
   def get_voice_connector_termination_health(voice_connector_id) do
     rest_request("/voice-connectors/#{voice_connector_id}/termination/health")
   end
 
+  @spec invite_users(String.t(), [String.t()], String.t() | nil) :: JSON.t()
   def invite_users(account_id, user_emails, user_type \\ nil) do
     json_request(
       "/accounts/#{account_id}/users?operation=add",
@@ -473,91 +586,110 @@ defmodule ExAws.Chime do
     )
   end
 
+  @spec list_accounts() :: RestQuery.t()
   def list_accounts() do
     # TODO: Paging
     # TODO: Filters
     rest_request("/accounts")
   end
 
+  @spec list_attendees(String.t()) :: RestQuery.t()
   def list_attendees(meeting_id) do
     # TODO: Paging
     rest_request("/meetings/#{meeting_id}/attendees")
   end
 
+  @spec list_attendee_tags(String.t(), String.t()) :: RestQuery.t()
   def list_attendee_tags(meeting_id, attendee_id) do
     rest_request("/meetings/#{meeting_id}/attendees/#{attendee_id}/tags")
   end
 
+  @spec list_bots(String.t()) :: RestQuery.t()
   def list_bots(account_id) do
     # TODO: Paging
     rest_request("/accounts/#{account_id}/bots")
   end
 
+  @spec list_meetings() :: RestQuery.t()
   def list_meetings() do
     # TODO: Paging
     rest_request("/meetings")
   end
 
+  @spec list_meeting_tags(String.t()) :: RestQuery.t()
   def list_meeting_tags(meeting_id) do
     rest_request("/meetings/#{meeting_id}/tags")
   end
 
+  @spec list_phone_number_orders() :: RestQuery.t()
   def list_phone_number_orders() do
     # TODO: Paging
     # TODO: Filters
     rest_request("/phone-number-orders")
   end
 
+  @spec list_phone_numbers() :: RestQuery.t()
   def list_phone_numbers() do
     # TODO: Paging
     # TODO: Filters
     rest_request("/phone-numbers")
   end
 
+  @spec list_proxy_sessions(String.t()) :: RestQuery.t()
   def list_proxy_sessions(voice_connector_id) do
     # TODO: Paging
     # TODO: Filters
     rest_request("/voice-connectors/#{voice_connector_id}/proxy-sessions")
   end
 
+  @spec list_room_memberships(String.t(), String.t()) :: RestQuery.t()
   def list_room_memberships(account_id, room_id) do
     # TODO: Paging
     rest_request("/accounts/#{account_id}/rooms/#{room_id}/memberships")
   end
 
+  @spec list_rooms(String.t()) :: RestQuery.t()
   def list_rooms(account_id) do
     # TODO: Paging
     rest_request("/accounts/#{account_id}/rooms")
   end
 
+  @spec list_tags_for_resource(String.t()) :: RestQuery.t()
   def list_tags_for_resource(resource_arn) do
     rest_request("/tags/#{resource_arn}")
   end
 
+  @spec list_users(String.t()) :: RestQuery.t()
   def list_users(account_id) do
     # TODO: Paging
     # TODO: Filters
     rest_request("/accounts/#{account_id}/users")
   end
 
+  @spec list_voice_connector_groups() :: RestQuery.t()
   def list_voice_connector_groups() do
     # TODO: Paging
     rest_request("/voice-connector-groups")
   end
 
+  @spec list_voice_connectors() :: RestQuery.t()
   def list_voice_connectors() do
     # TODO: Paging
     rest_request("/voice-connectors")
   end
 
+  @spec list_voice_connector_termination_credentials(String.t()) :: RestQuery.t()
   def list_voice_connector_termination_credentials(voice_connector_id) do
     rest_request("/voice-connectors/#{voice_connector_id}/termination/credentials")
   end
 
+  @spec logout_user(String.t(), String.t()) :: RestQuery.t()
   def logout_user(account_id, user_id) do
     post_request("accounts/#{account_id}/users/#{user_id}?operation=logout")
   end
 
+  @spec put_events_configuration(String.t(), String.t(), String.t() | nil, String.t() | nil) ::
+          JSON.t()
   def put_events_configuration(
         account_id,
         bot_id,
@@ -573,8 +705,13 @@ defmodule ExAws.Chime do
     )
   end
 
-  def put_retention_settings() do
-    # TODO
+  def put_retention_settings(account_id, retention_settings) do
+    json_put_request(
+      "/accounts/#{account_id}/retention-settings",
+      %{
+        "RetentionSettings" => struct_to_obj(retention_settings)
+      }
+    )
   end
 
   def put_voice_connector_emergency_calling_configuration() do
@@ -813,14 +950,20 @@ defmodule ExAws.Chime do
     Jason.decode(body)
   end
 
-  def structs_to_objs(structs), do: Enum.map(structs, &struct_to_obj/1)
+  defp structs_to_objs(structs), do: Enum.map(structs, &struct_to_obj/1)
 
-  def struct_to_obj(struct) do
+  defp struct_to_obj(struct) do
     struct
     |> Map.drop([:__struct__])
     |> Enum.reduce(%{}, fn
       {_k, nil}, acc -> acc
-      {k, v}, acc -> Map.put(acc, Macro.camelize(to_string(k)), v)
+      {k, v}, acc -> Map.put(acc, Macro.camelize(to_string(k)), value_to_obj(v))
     end)
   end
+
+  defp value_to_obj(v) when is_map(v), do: struct_to_obj(v)
+  defp value_to_obj(v) when is_list(v), do: Enum.map(v, &value_to_obj/1)
+  defp value_to_obj(v) when is_binary(v), do: v
+  defp value_to_obj(v) when is_integer(v), do: v
+  defp value_to_obj(v) when is_boolean(v), do: v
 end
