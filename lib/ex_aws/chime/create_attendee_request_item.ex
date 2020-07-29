@@ -6,6 +6,6 @@ defmodule ExAws.Chime.CreateAttendeeRequestItem do
 
   @type t :: %__MODULE__{
           external_user_id: String.t(),
-          tags: %{String.t() => String.t()}
+          tags: [ExAws.Chime.Tag.t()] | nil
         }
 end

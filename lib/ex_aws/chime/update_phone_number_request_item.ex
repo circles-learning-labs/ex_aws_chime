@@ -6,8 +6,8 @@ defmodule ExAws.Chime.UpdatePhoneNumberRequestItem do
   ]
 
   @type t :: %__MODULE__{
-    calling_name: String.t(),
-    phone_number_id: String.t(),
-    product_type: String.t()
-  }
+          calling_name: String.t(),
+          phone_number_id: String.t(),
+          product_type: String.t()
+        }
 end

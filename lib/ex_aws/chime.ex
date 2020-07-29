@@ -8,8 +8,8 @@ defmodule ExAws.Chime do
 
   # TODO:
   # * Add all actions
-  # * Add tag support where applicable
   # * Add max results/paging to List actions
+  # * Strip out nils
 
   ### AWS Chime API
   def associate_phone_numbers_with_voice_connector(
@@ -107,66 +107,131 @@ defmodule ExAws.Chime do
     json_request(
       "/phone-numbers?operation=batch-update",
       %{
-        "UpdatePhoneNumberRequestItems": structs_to_objs(phone_number_updates)
+        "UpdatePhoneNumberRequestItems" => structs_to_objs(phone_number_updates)
       }
     )
   end
 
-  def batch_update_user() do
-    # TODO
+  def batch_update_user(account_id, user_updates) do
+    json_request(
+      "/accounts/#{account_id}/users",
+      %{
+        "UpdatePhoneNumberRequestItems" => structs_to_objs(user_updates)
+      }
+    )
   end
 
-  def create_account() do
-    # TODO
+  def create_account(name) do
+    json_request(
+      "/accounts",
+      %{
+        "Name" => name
+      }
+    )
   end
 
-  def create_attendee(meeting_id, create_attendee, _opts \\ []) do
+  def create_attendee(meeting_id, create_attendee) do
     json_request(
       "/meetings/#{meeting_id}/attendees",
+      struct_to_obj(create_attendee)
+    )
+  end
+
+  def create_bot(account_id, display_name, domain \\ nil) do
+    json_request(
+      "/accounts/#{account_id}/bots",
       %{
-        "ExternalUserId" => create_attendee.external_user_id,
-        "Tags" => create_attendee.tags
+        "DisplayName" => display_name,
+        "Domain" => domain
       }
     )
   end
 
-  def create_bot() do
-    # TODO
-  end
-
-  def create_meeting(meeting_id, opts \\ []) do
-    data =
+  def create_meeting(
+        external_meeting_id \\ nil,
+        media_region \\ nil,
+        meeting_host_id \\ nil,
+        notifications_configuration \\ nil,
+        tags \\ nil
+      ) do
+    json_request(
+      "/meetings",
       %{
         "ClientRequestToken" => UUID.uuid4(),
-        "ExternalMeetingId" => meeting_id
+        "ExternalMeetingId" => external_meeting_id,
+        "MediaRegion" => media_region,
+        "MeetingHostId" => meeting_host_id,
+        "NotificationsConfiguration" => struct_to_obj(notifications_configuration),
+        "Tags" => tags
       }
-      |> add_json_opts([meeting_region: "MeetingRegion"], opts)
-
-    json_request("/meetings", data)
+    )
   end
 
-  def create_meeting_with_attendees() do
-    # TODO
+  def create_meeting_with_attendees(
+        attendees \\ nil,
+        external_meeting_id,
+        media_region \\ nil,
+        meeting_host_id \\ nil,
+        notifications_configuration \\ nil,
+        tags \\ nil
+      ) do
+    json_request(
+      "/meetings?operation=create-attendees",
+      %{
+        "Attendees" => struct_to_obj(attendees),
+        "ClientRequestToken" => UUID.uuid4(),
+        "ExternalMeetingId" => external_meeting_id,
+        "MediaRegion" => media_region,
+        "MeetingHostId" => meeting_host_id,
+        "NotificationsConfiguration" => struct_to_obj(notifications_configuration),
+        "Tags" => tags
+      }
+    )
   end
 
-  def create_phone_number_order() do
-    # TODO
+  def create_phone_number_order(phone_numbers, product_type) do
+    json_request(
+      "/phone-number-orders",
+      %{
+        "E164PhoneNumbers" => phone_numbers,
+        "ProductType" => product_type
+      }
+    )
   end
 
   def create_proxy_session() do
     # TODO
   end
 
-  def create_room() do
-    # TODO
+  def create_room(account_id, name) do
+    json_request(
+      "/accoutns/#{account_id}/rooms",
+      %{
+        "ClientRequestToken" => UUID.uuid4(),
+        "Name" => name
+      }
+    )
   end
 
-  def create_room_membership() do
-    # TODO
+  def create_room_membership(account_id, room_id, member_id, role \\ nil) do
+    json_request(
+      "/accounts/#{account_id}/rooms/#{room_id}/memberships",
+      %{
+        "MemberId" => member_id,
+        "Role" => role
+      }
+    )
   end
 
-  def create_user() do
-    # TODO
+  def create_user(account_id, email \\ nil, username \\ nil, user_type \\ nil) do
+    json_request(
+      "/accounts/#{account_id}/users/operation=create",
+      %{
+        "Email" => email,
+        "Username" => username,
+        "UserType" => user_type
+      }
+    )
   end
 
   def create_voice_connector() do
@@ -177,32 +242,32 @@ defmodule ExAws.Chime do
     # TODO
   end
 
-  def delete_account() do
-    # TODO
+  def delete_account(account_id) do
+    delete_request("/accounts/#{account_id}")
   end
 
-  def delete_attendee(meeting_id, attendee_id, opts \\ []) do
-    rest_request("/meetings/#{meeting_id}/attendees/#{attendee_id}", :delete, opts)
+  def delete_attendee(meeting_id, attendee_id) do
+    delete_request("/meetings/#{meeting_id}/attendees/#{attendee_id}")
   end
 
-  def delete_events_configuration() do
-    # TODO
+  def delete_events_configuration(account_id, bot_id) do
+    delete_request("/accounts/#{account_id}/bots/#{bot_id}/events-configuration")
   end
 
   def delete_meeting(meeting_id) do
-    rest_request("/meetings/#{meeting_id}", :delete, [])
+    delete_request("/meetings/#{meeting_id}")
   end
 
-  def delete_phone_number() do
-    # TODO
+  def delete_phone_number(phone_number_id) do
+    delete_request("/phone-numbers/#{phone_number_id}")
   end
 
   def delete_proxy_session() do
     # TODO
   end
 
-  def delete_room() do
-    # TODO
+  def delete_room(account_id, room_id) do
+    delete_request("/accounts/#{account_id}/rooms/#{room_id}")
   end
 
   def delete_room_membership() do
@@ -357,12 +422,12 @@ defmodule ExAws.Chime do
     # TODO
   end
 
-  def list_accounts(opts \\ []) do
-    rest_request("/accounts", opts)
+  def list_accounts() do
+    rest_request("/accounts")
   end
 
-  def list_attendees(meeting_id, opts \\ []) do
-    rest_request("/meetings/#{meeting_id}/attendees", opts)
+  def list_attendees(meeting_id) do
+    rest_request("/meetings/#{meeting_id}/attendees")
   end
 
   def list_attendee_tags() do
@@ -373,8 +438,8 @@ defmodule ExAws.Chime do
     # TODO
   end
 
-  def list_meetings(opts \\ []) do
-    rest_request("/meetings", opts)
+  def list_meetings() do
+    rest_request("/meetings")
   end
 
   def list_meeting_tags() do
@@ -563,16 +628,9 @@ defmodule ExAws.Chime do
 
   ### HELPERS
 
-  defp add_json_opts(base, opts_list, opts) do
-    Enum.reduce(opts_list, base, fn {k, d}, acc ->
-      case Keyword.get(opts, k) do
-        nil -> acc
-        value -> Map.put(acc, d, value)
-      end
-    end)
-  end
+  defp delete_request(action, params \\ %{}), do: rest_request(action, :delete, params)
 
-  defp rest_request(action, method \\ :get, params \\ %{}, _opts) do
+  defp rest_request(action, method \\ :get, params \\ %{}) do
     %RestQuery{
       http_method: method,
       path: action,
@@ -601,7 +659,9 @@ defmodule ExAws.Chime do
   def struct_to_obj(struct) do
     struct
     |> Map.drop([:__struct__])
-    |> Enum.map(fn {k, v} -> {Macro.camelize(to_string(k)), v} end)
-    |> Enum.into(%{})
+    |> Enum.reduce(%{}, fn
+      {_k, nil}, acc -> acc
+      {k, v}, acc -> Map.put(acc, Macro.camelize(to_string(k)), v)
+    end)
   end
 end
