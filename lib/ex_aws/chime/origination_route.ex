@@ -1,4 +1,10 @@
 defmodule ExAws.Chime.OriginationRoute do
+  @moduledoc """
+  Module representing the Chime OriginationRoute data type
+
+  See https://docs.aws.amazon.com/chime/latest/APIReference/API_OriginationRoute.html
+  """
+
   defstruct [
     :host,
     :port,

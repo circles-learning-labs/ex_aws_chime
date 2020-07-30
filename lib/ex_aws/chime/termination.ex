@@ -1,4 +1,10 @@
 defmodule ExAws.Chime.Termination do
+  @moduledoc """
+  Module representing the Chime Termination data type
+
+  See https://docs.aws.amazon.com/chime/latest/APIReference/API_Termination.html
+  """
+
   defstruct [
     :calling_regions,
     :cidr_allowed_list,

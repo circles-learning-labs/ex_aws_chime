@@ -1,4 +1,10 @@
 defmodule ExAws.Chime.StreamingConfiguration do
+  @moduledoc """
+  Module representing the Chime StreamingConfiguration data type
+
+  See https://docs.aws.amazon.com/chime/latest/APIReference/API_StreamingConfiguration.html
+  """
+
   alias ExAws.Chime.StreamingNotificationTarget
 
   defstruct [

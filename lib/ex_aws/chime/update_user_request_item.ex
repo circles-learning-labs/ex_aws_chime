@@ -1,4 +1,10 @@
 defmodule ExAws.Chime.UpdateUserRequestItem do
+  @moduledoc """
+  Module representing the Chime UpdateUserRequestItem data type
+
+  See https://docs.aws.amazon.com/chime/latest/APIReference/API_UpdateUserRequestItem.html
+  """
+
   defstruct [
     :alexa_for_business_metadata,
     :license_type,

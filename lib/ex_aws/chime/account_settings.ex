@@ -1,4 +1,10 @@
 defmodule ExAws.Chime.AccountSettings do
+  @moduledoc """
+  Module representing the Chime AccountSettings data type
+
+  See https://docs.aws.amazon.com/chime/latest/APIReference/API_AccountSettings.html
+  """
+
   defstruct [
     :disable_remote_control,
     :enable_dial_out
