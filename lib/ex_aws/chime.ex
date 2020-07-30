@@ -3,16 +3,16 @@ defmodule ExAws.Chime do
   See https://docs.aws.amazon.com/chime/latest/APIReference
   """
 
-  alias ExAws.Chime.AlexaForBusinessMetadata
   alias ExAws.Chime.AccountSettings
+  alias ExAws.Chime.AlexaForBusinessMetadata
   alias ExAws.Chime.BusinessCallingSettings
   alias ExAws.Chime.CreateAttendeeRequestItem
   alias ExAws.Chime.Credentials
   alias ExAws.Chime.EmergencyCallingConfiguration
   alias ExAws.Chime.GeoMatchParams
   alias ExAws.Chime.LoggingConfiguration
-  alias ExAws.Chime.MembershipItem
   alias ExAws.Chime.MeetingNotificationConfiguration
+  alias ExAws.Chime.MembershipItem
   alias ExAws.Chime.Origination
   alias ExAws.Chime.RetentionSettings
   alias ExAws.Chime.StreamingConfiguration
@@ -540,8 +540,8 @@ defmodule ExAws.Chime do
     get_request("/accounts/#{account_id}/bots/#{bot_id}/events-configuration")
   end
 
-  @spec get_global_settings() :: RestQuery.t()
-  def get_global_settings() do
+  @spec get_global_settings :: RestQuery.t()
+  def get_global_settings do
     get_request("/settings")
   end
 
@@ -560,8 +560,8 @@ defmodule ExAws.Chime do
     get_request("/phone-number-orders/#{phone_number_order_id}")
   end
 
-  @spec get_phone_number_settings() :: RestQuery.t()
-  def get_phone_number_settings() do
+  @spec get_phone_number_settings :: RestQuery.t()
+  def get_phone_number_settings do
     get_request("/settings/phone-number")
   end
 
@@ -651,7 +651,7 @@ defmodule ExAws.Chime do
 
   @spec list_accounts(filters(), max_results(), paging_token()) :: RestQuery.t()
   def list_accounts(filters \\ %{}, max_results \\ nil, next_token \\ nil) do
-    get_request("/accounts", filters |> add_paging(max_results, next_token))
+    get_request("/accounts", add_paging(filters, max_results, next_token))
   end
 
   @spec list_attendees(String.t(), max_results(), paging_token()) :: RestQuery.t()
@@ -686,7 +686,7 @@ defmodule ExAws.Chime do
 
   @spec list_phone_numbers(filters(), max_results(), paging_token()) :: RestQuery.t()
   def list_phone_numbers(filters \\ %{}, max_results \\ nil, next_token \\ nil) do
-    get_request("/phone-numbers", filters |> add_paging(max_results, next_token))
+    get_request("/phone-numbers", add_paging(filters, max_results, next_token))
   end
 
   @spec list_proxy_sessions(String.t(), filters(), max_results(), paging_token()) :: RestQuery.t()
@@ -698,7 +698,7 @@ defmodule ExAws.Chime do
       ) do
     get_request(
       "/voice-connectors/#{voice_connector_id}/proxy-sessions",
-      filters |> add_paging(max_results, next_token)
+      add_paging(filters, max_results, next_token)
     )
   end
 
@@ -723,7 +723,7 @@ defmodule ExAws.Chime do
 
   @spec list_users(String.t(), filters(), max_results(), paging_token()) :: RestQuery.t()
   def list_users(account_id, filters \\ %{}, max_results \\ nil, next_token \\ nil) do
-    get_request("/accounts/#{account_id}/users", filters |> add_paging(max_results, next_token))
+    get_request("/accounts/#{account_id}/users", add_paging(filters, max_results, next_token))
   end
 
   @spec list_voice_connector_groups(max_results(), paging_token()) :: RestQuery.t()
@@ -922,7 +922,7 @@ defmodule ExAws.Chime do
   def search_available_phone_numbers(filters \\ %{}, max_results \\ nil, next_token \\ nil) do
     get_request(
       "/search",
-      filters |> add_paging(max_results, next_token)
+      add_paging(filters, max_results, next_token)
     )
   end
 
