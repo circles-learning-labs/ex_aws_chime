@@ -7,7 +7,8 @@ defmodule ExAwsChime.MixProject do
       version: "0.1.0",
       elixir: "~> 1.10",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      package: package()
     ]
   end
 
@@ -23,6 +24,16 @@ defmodule ExAwsChime.MixProject do
       {:configparser_ex, "~> 4.0", runtime: false},
       {:credo, "~> 1.4", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false}
+    ]
+  end
+
+  defp package do
+    [
+      description: "Chime support library for ExAws",
+      licenses: ["MIT"],
+      files: ["lib", "mix.exs", "README*"],
+      maintainers: ["Bernard Duggan"],
+      links: %{github: "https://github.com/circles-learning-labs/ex_aws_chime"}
     ]
   end
 end
