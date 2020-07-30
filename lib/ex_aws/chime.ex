@@ -9,6 +9,7 @@ defmodule ExAws.Chime do
   alias ExAws.Chime.CreateAttendeeRequestItem
   alias ExAws.Chime.Credentials
   alias ExAws.Chime.EmergencyCallingConfiguration
+  alias ExAws.Chime.GeoMatchParams
   alias ExAws.Chime.LoggingConfiguration
   alias ExAws.Chime.MembershipItem
   alias ExAws.Chime.MeetingNotificationConfiguration
@@ -19,6 +20,7 @@ defmodule ExAws.Chime do
   alias ExAws.Chime.Termination
   alias ExAws.Chime.UpdatePhoneNumberRequestItem
   alias ExAws.Chime.UpdateUserRequestItem
+  alias ExAws.Chime.UserSettings
   alias ExAws.Chime.VoiceConnectorItem
   alias ExAws.Chime.VoiceConnectorSettings
   alias ExAws.Operation.JSON
@@ -239,11 +241,11 @@ defmodule ExAws.Chime do
   end
 
   @spec create_meeting_with_attendees(
-          [CreateAttendeeRequestItem.t()],
+          [CreateAttendeeRequestItem.t()] | nil,
           String.t(),
           String.t() | nil,
           String.t() | nil,
-          NotificationsConfiguration.t() | nil,
+          MeetingNotificationConfiguration.t() | nil,
           [Tag.t()] | nil
         ) :: JSON.t()
   def create_meeting_with_attendees(
@@ -917,14 +919,14 @@ defmodule ExAws.Chime do
   end
 
   @spec search_available_phone_numbers(filters()) :: RestQuery.t()
-  def search_available_phone_numbers(filters \\ %{}) do
+  def search_available_phone_numbers(filters \\ %{}, max_results \\ nil, next_token \\ nil) do
     get_request(
       "/search",
-      Map.merge(%{type: "phone-number"}, filters)
+      filters |> add_paging(max_results, next_token)
     )
   end
 
-  @spec tag_attendee(String.t(), String.t(), [Tag.t()]) :: RestQuery.t()
+  @spec tag_attendee(String.t(), String.t(), [Tag.t()]) :: JSON.t()
   def tag_attendee(meeting_id, attendee_id, tags) do
     json_request(
       "/meetings/#{meeting_id}/attendees/#{attendee_id}/tags",

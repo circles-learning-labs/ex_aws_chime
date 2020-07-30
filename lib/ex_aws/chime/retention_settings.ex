@@ -1,6 +1,6 @@
 defmodule ExAws.Chime.RetentionSettings do
-  alias EXAws.Chime.ConversationRetentionSettings
-  alias EXAws.Chime.RoomRetentionSettings
+  alias ExAws.Chime.ConversationRetentionSettings
+  alias ExAws.Chime.RoomRetentionSettings
 
   defstruct [
     :conversation_retention_settings,
