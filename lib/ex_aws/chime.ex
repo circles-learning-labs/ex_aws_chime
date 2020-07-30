@@ -24,12 +24,11 @@ defmodule ExAws.Chime do
   alias ExAws.Operation.JSON
   alias ExAws.Operation.RestQuery
 
-  # TODO:
-  # * Add max results/paging to List actions
-  # * Add results filter to List actions
-  # * Strip out nils
-
   ### AWS Chime API
+
+  @type filters :: %{String.t() => String.t()}
+  @type paging_token :: String.t() | nil
+  @type max_results :: pos_integer() | nil
 
   @spec associate_phone_numbers_with_voice_connector(String.t(), [String.t()], boolean()) ::
           JSON.t()
@@ -39,7 +38,10 @@ defmodule ExAws.Chime do
         force \\ false
       ) do
     json_request(
-      "/voice-connectors/#{voice_connector_id}?operation=associate-phone-numbers",
+      "/voice-connectors/#{voice_connector_id}",
+      %{
+        operation: "associate-phone-numbers"
+      },
       %{
         "E164PhoneNumbers" => phone_numbers,
         "ForceAssociate" => force
@@ -55,7 +57,10 @@ defmodule ExAws.Chime do
         force \\ false
       ) do
     json_request(
-      "/voice-connector-groups/#{voice_connector_group_id}?operation=associate-phone-numbers",
+      "/voice-connector-groups/#{voice_connector_group_id}",
+      %{
+        operation: "associate-phone-numbers"
+      },
       %{
         "E164PhoneNumbers" => phone_numbers,
         "ForceAssociate" => force
@@ -66,7 +71,10 @@ defmodule ExAws.Chime do
   @spec associate_phone_number_with_user(String.t(), String.t(), String.t()) :: JSON.t()
   def associate_phone_number_with_user(account_id, user_id, phone_number) do
     json_request(
-      "/accounts/#{account_id}/users/#{user_id}?operation=associate-phone-numbers",
+      "/accounts/#{account_id}/users/#{user_id}",
+      %{
+        operation: "associate-phone-numbers"
+      },
       %{
         "E164PhoneNumber" => phone_number
       }
@@ -76,7 +84,10 @@ defmodule ExAws.Chime do
   @spec associate_signin_delegate_groups_with_account(String.t(), [String.t()]) :: JSON.t()
   def associate_signin_delegate_groups_with_account(account_id, group_names) do
     json_request(
-      "/accounts/#{account_id}?operation=associate-signin-delegate-groups",
+      "/accounts/#{account_id}",
+      %{
+        operation: "associate-signin-delegate-groups"
+      },
       %{
         "SigninDelegateGroups" => Enum.map(group_names, &%{"GroupName" => &1})
       }
@@ -86,7 +97,10 @@ defmodule ExAws.Chime do
   @spec batch_create_attendee(String.t(), [CreateAttendeeRequestItem.t()]) :: JSON.t()
   def batch_create_attendee(meeting_id, attendee_requests) do
     json_request(
-      "/meetings/#{meeting_id}/attendees?operation=batch-create",
+      "/meetings/#{meeting_id}/attendees",
+      %{
+        operation: "batch-create"
+      },
       %{
         "Attendees" => attendee_requests
       }
@@ -96,7 +110,10 @@ defmodule ExAws.Chime do
   @spec batch_create_room_membership(String.t(), String.t(), MembershipItem.t()) :: JSON.t()
   def batch_create_room_membership(account_id, room_id, memberships) do
     json_request(
-      "/accounts/#{account_id}/rooms/#{room_id}/memberships?operation=batch-create",
+      "/accounts/#{account_id}/rooms/#{room_id}/memberships",
+      %{
+        operation: "batch-create"
+      },
       %{
         "MembershipItemList" => memberships
       }
@@ -106,7 +123,10 @@ defmodule ExAws.Chime do
   @spec batch_delete_phone_number([String.t()]) :: JSON.t()
   def batch_delete_phone_number(phone_number_ids) do
     json_request(
-      "/phone-numbers?operation=batch-delete",
+      "/phone-numbers",
+      %{
+        operation: "batch-delete"
+      },
       %{
         "PhoneNumberIds" => phone_number_ids
       }
@@ -116,7 +136,10 @@ defmodule ExAws.Chime do
   @spec batch_suspend_user(String.t(), String.t()) :: JSON.t()
   def batch_suspend_user(account_id, user_ids) do
     json_request(
-      "/accounts/#{account_id}/users?operation=suspend",
+      "/accounts/#{account_id}/users",
+      %{
+        operation: "suspend"
+      },
       %{
         "UserIdList" => user_ids
       }
@@ -126,7 +149,10 @@ defmodule ExAws.Chime do
   @spec batch_unsuspend_user(String.t(), [String.t()]) :: JSON.t()
   def batch_unsuspend_user(account_id, user_ids) do
     json_request(
-      "/accounts/#{account_id}/users?operation=unsuspend",
+      "/accounts/#{account_id}/users",
+      %{
+        operation: "unsuspend"
+      },
       %{
         "UserIdList" => user_ids
       }
@@ -136,7 +162,10 @@ defmodule ExAws.Chime do
   @spec batch_update_phone_number(UpdatePhoneNumberRequestItem.t()) :: JSON.t()
   def batch_update_phone_number(phone_number_updates) do
     json_request(
-      "/phone-numbers?operation=batch-update",
+      "/phone-numbers",
+      %{
+        operation: "batch-update"
+      },
       %{
         "UpdatePhoneNumberRequestItems" => phone_number_updates
       }
@@ -226,7 +255,10 @@ defmodule ExAws.Chime do
         tags \\ nil
       ) do
     json_request(
-      "/meetings?operation=create-attendees",
+      "/meetings",
+      %{
+        operation: "create-attendees"
+      },
       %{
         "Attendees" => attendees,
         "ClientRequestToken" => UUID.uuid4(),
@@ -418,7 +450,10 @@ defmodule ExAws.Chime do
   @spec delete_voice_connector_termination_credentials(String.t(), [String.t()]) :: JSON.t()
   def delete_voice_connector_termination_credentials(voice_connector_id, usernames) do
     json_request(
-      "/voice-connectors/#{voice_connector_id}/termination/credentials?operation=delete",
+      "/voice-connectors/#{voice_connector_id}/termination/credentials",
+      %{
+        operation: "delete"
+      },
       %{
         "Usernames" => usernames
       }
@@ -427,13 +462,21 @@ defmodule ExAws.Chime do
 
   @spec disassociate_phone_number_from_user(String.t(), String.t()) :: RestQuery.t()
   def disassociate_phone_number_from_user(account_id, user_id) do
-    post_request("/accounts/#{account_id}/users/#{user_id}?operation?disassociate-phone_number")
+    post_request(
+      "/accounts/#{account_id}/users/#{user_id}",
+      %{
+        operation: "disassociate-phone_number"
+      }
+    )
   end
 
   @spec disassociate_phone_numbers_from_voice_connector(String.t(), [String.t()]) :: JSON.t()
   def disassociate_phone_numbers_from_voice_connector(voice_connector_id, phone_numbers) do
     json_request(
-      "/voice-connectors/#{voice_connector_id}?operation=disassociate-phone-numbers",
+      "/voice-connectors/#{voice_connector_id}",
+      %{
+        operation: "disassociate-phone-numbers"
+      },
       %{
         "E164PhoneNumbers" => phone_numbers
       }
@@ -447,7 +490,10 @@ defmodule ExAws.Chime do
         phone_numbers
       ) do
     json_request(
-      "/voice-connector-groups/#{voice_connector_group_id}?operation=disassociate-phone-numbers",
+      "/voice-connector-groups/#{voice_connector_group_id}",
+      %{
+        operation: "disassociate-phone-numbers"
+      },
       %{
         "E164PhoneNumbers" => phone_numbers
       }
@@ -456,9 +502,11 @@ defmodule ExAws.Chime do
 
   @spec disassociate_signin_delegate_groups_from_account(String.t(), [String.t()]) :: JSON.t()
   def disassociate_signin_delegate_groups_from_account(account_id, group_names) do
-    # TODO
     json_request(
-      "/accounts/#{account_id}?operation=disassociate-signin-delegate-groups",
+      "/accounts/#{account_id}",
+      %{
+        operation: "disassociate-signin-delegate-groups"
+      },
       %{
         "GroupNames" => group_names
       }
@@ -588,7 +636,10 @@ defmodule ExAws.Chime do
   @spec invite_users(String.t(), [String.t()], String.t() | nil) :: JSON.t()
   def invite_users(account_id, user_emails, user_type \\ nil) do
     json_request(
-      "/accounts/#{account_id}/users?operation=add",
+      "/accounts/#{account_id}/users",
+      %{
+        operation: "add"
+      },
       %{
         "UserEmailList" => user_emails,
         "UserType" => user_type
@@ -596,17 +647,14 @@ defmodule ExAws.Chime do
     )
   end
 
-  @spec list_accounts() :: RestQuery.t()
-  def list_accounts() do
-    # TODO: Paging
-    # TODO: Filters
-    get_request("/accounts")
+  @spec list_accounts(filters(), max_results(), paging_token()) :: RestQuery.t()
+  def list_accounts(filters \\ %{}, max_results \\ nil, next_token \\ nil) do
+    get_request("/accounts", filters |> add_paging(max_results, next_token))
   end
 
-  @spec list_attendees(String.t()) :: RestQuery.t()
-  def list_attendees(meeting_id) do
-    # TODO: Paging
-    get_request("/meetings/#{meeting_id}/attendees")
+  @spec list_attendees(String.t(), max_results(), paging_token()) :: RestQuery.t()
+  def list_attendees(meeting_id, max_results \\ nil, next_token \\ nil) do
+    get_request("/meetings/#{meeting_id}/attendees", add_paging(max_results, next_token))
   end
 
   @spec list_attendee_tags(String.t(), String.t()) :: RestQuery.t()
@@ -614,16 +662,14 @@ defmodule ExAws.Chime do
     get_request("/meetings/#{meeting_id}/attendees/#{attendee_id}/tags")
   end
 
-  @spec list_bots(String.t()) :: RestQuery.t()
-  def list_bots(account_id) do
-    # TODO: Paging
-    get_request("/accounts/#{account_id}/bots")
+  @spec list_bots(String.t(), max_results(), paging_token()) :: RestQuery.t()
+  def list_bots(account_id, max_results \\ nil, next_token \\ nil) do
+    get_request("/accounts/#{account_id}/bots", add_paging(max_results, next_token))
   end
 
-  @spec list_meetings() :: RestQuery.t()
-  def list_meetings() do
-    # TODO: Paging
-    get_request("/meetings")
+  @spec list_meetings(max_results(), paging_token()) :: RestQuery.t()
+  def list_meetings(max_results \\ nil, next_token \\ nil) do
+    get_request("/meetings", add_paging(max_results, next_token))
   end
 
   @spec list_meeting_tags(String.t()) :: RestQuery.t()
@@ -631,37 +677,41 @@ defmodule ExAws.Chime do
     get_request("/meetings/#{meeting_id}/tags")
   end
 
-  @spec list_phone_number_orders() :: RestQuery.t()
-  def list_phone_number_orders() do
-    # TODO: Paging
-    # TODO: Filters
-    get_request("/phone-number-orders")
+  @spec list_phone_number_orders(max_results(), paging_token()) :: RestQuery.t()
+  def list_phone_number_orders(max_results \\ nil, next_token \\ nil) do
+    get_request("/phone-number-orders", add_paging(max_results, next_token))
   end
 
-  @spec list_phone_numbers() :: RestQuery.t()
-  def list_phone_numbers() do
-    # TODO: Paging
-    # TODO: Filters
-    get_request("/phone-numbers")
+  @spec list_phone_numbers(filters(), max_results(), paging_token()) :: RestQuery.t()
+  def list_phone_numbers(filters \\ %{}, max_results \\ nil, next_token \\ nil) do
+    get_request("/phone-numbers", filters |> add_paging(max_results, next_token))
   end
 
-  @spec list_proxy_sessions(String.t()) :: RestQuery.t()
-  def list_proxy_sessions(voice_connector_id) do
-    # TODO: Paging
-    # TODO: Filters
-    get_request("/voice-connectors/#{voice_connector_id}/proxy-sessions")
+  @spec list_proxy_sessions(String.t(), filters(), max_results(), paging_token()) :: RestQuery.t()
+  def list_proxy_sessions(
+        voice_connector_id,
+        filters \\ %{},
+        max_results \\ nil,
+        next_token \\ nil
+      ) do
+    get_request(
+      "/voice-connectors/#{voice_connector_id}/proxy-sessions",
+      filters |> add_paging(max_results, next_token)
+    )
   end
 
-  @spec list_room_memberships(String.t(), String.t()) :: RestQuery.t()
-  def list_room_memberships(account_id, room_id) do
-    # TODO: Paging
-    get_request("/accounts/#{account_id}/rooms/#{room_id}/memberships")
+  @spec list_room_memberships(String.t(), String.t(), max_results(), paging_token()) ::
+          RestQuery.t()
+  def list_room_memberships(account_id, room_id, max_results \\ nil, next_token \\ nil) do
+    get_request(
+      "/accounts/#{account_id}/rooms/#{room_id}/memberships",
+      add_paging(max_results, next_token)
+    )
   end
 
-  @spec list_rooms(String.t()) :: RestQuery.t()
-  def list_rooms(account_id) do
-    # TODO: Paging
-    get_request("/accounts/#{account_id}/rooms")
+  @spec list_rooms(String.t(), max_results(), paging_token()) :: RestQuery.t()
+  def list_rooms(account_id, max_results \\ nil, next_token \\ nil) do
+    get_request("/accounts/#{account_id}/rooms", add_paging(max_results, next_token))
   end
 
   @spec list_tags_for_resource(String.t()) :: RestQuery.t()
@@ -669,23 +719,19 @@ defmodule ExAws.Chime do
     get_request("/tags/#{resource_arn}")
   end
 
-  @spec list_users(String.t()) :: RestQuery.t()
-  def list_users(account_id) do
-    # TODO: Paging
-    # TODO: Filters
-    get_request("/accounts/#{account_id}/users")
+  @spec list_users(String.t(), filters(), max_results(), paging_token()) :: RestQuery.t()
+  def list_users(account_id, filters \\ %{}, max_results \\ nil, next_token \\ nil) do
+    get_request("/accounts/#{account_id}/users", filters |> add_paging(max_results, next_token))
   end
 
-  @spec list_voice_connector_groups() :: RestQuery.t()
-  def list_voice_connector_groups() do
-    # TODO: Paging
-    get_request("/voice-connector-groups")
+  @spec list_voice_connector_groups(max_results(), paging_token()) :: RestQuery.t()
+  def list_voice_connector_groups(max_results \\ nil, next_token \\ nil) do
+    get_request("/voice-connector-groups", add_paging(max_results, next_token))
   end
 
-  @spec list_voice_connectors() :: RestQuery.t()
-  def list_voice_connectors() do
-    # TODO: Paging
-    get_request("/voice-connectors")
+  @spec list_voice_connectors(max_results(), paging_token()) :: RestQuery.t()
+  def list_voice_connectors(max_results \\ nil, next_token \\ nil) do
+    get_request("/voice-connectors", add_paging(max_results, next_token))
   end
 
   @spec list_voice_connector_termination_credentials(String.t()) :: RestQuery.t()
@@ -695,7 +741,12 @@ defmodule ExAws.Chime do
 
   @spec logout_user(String.t(), String.t()) :: RestQuery.t()
   def logout_user(account_id, user_id) do
-    post_request("accounts/#{account_id}/users/#{user_id}?operation=logout")
+    post_request(
+      "accounts/#{account_id}/users/#{user_id}",
+      %{
+        operation: "logout"
+      }
+    )
   end
 
   @spec put_events_configuration(String.t(), String.t(), String.t() | nil, String.t() | nil) ::
@@ -818,42 +869,68 @@ defmodule ExAws.Chime do
   @spec redact_conversation_message(String.t(), String.t(), String.t()) :: RestQuery.t()
   def redact_conversation_message(account_id, conversation_id, message_id) do
     post_request(
-      "/accounts/#{account_id}/conversations/#{conversation_id}/messages/#{message_id}?operation=redact"
+      "/accounts/#{account_id}/conversations/#{conversation_id}/messages/#{message_id}",
+      %{
+        operation: "redact"
+      }
     )
   end
 
   @spec redact_room_message(String.t(), String.t(), String.t()) :: RestQuery.t()
   def redact_room_message(account_id, room_id, message_id) do
     post_request(
-      "/accounts/#{account_id}/rooms/#{room_id}/messages/#{message_id}?operation=redact"
+      "/accounts/#{account_id}/rooms/#{room_id}/messages/#{message_id}",
+      %{
+        operation: "redact"
+      }
     )
   end
 
   @spec regenerate_security_token(String.t(), String.t()) :: RestQuery.t()
   def regenerate_security_token(account_id, bot_id) do
-    post_request("/accounts/#{account_id}/bots/#{bot_id}?operation=regenerate-security-token")
+    post_request(
+      "/accounts/#{account_id}/bots/#{bot_id}",
+      %{
+        operation: "regenerate-security-token"
+      }
+    )
   end
 
   @spec reset_personal_pin(String.t(), String.t()) :: RestQuery.t()
   def reset_personal_pin(account_id, user_id) do
-    post_request("/accounts/#{account_id}/users/#{user_id}?operation=reset-personal-pin")
+    post_request(
+      "/accounts/#{account_id}/users/#{user_id}",
+      %{
+        operation: "reset-personal-pin"
+      }
+    )
   end
 
   @spec restore_phone_number(String.t()) :: RestQuery.t()
   def restore_phone_number(phone_number_id) do
-    post_request("/phone-numbers/#{phone_number_id}?operation=restore")
+    post_request(
+      "/phone-numbers/#{phone_number_id}",
+      %{
+        operation: "restore"
+      }
+    )
   end
 
-  @spec search_available_phone_numbers() :: RestQuery.t()
-  def search_available_phone_numbers() do
-    # TODO: Filters
-    get_request("/search?type=phone-number")
+  @spec search_available_phone_numbers(filters()) :: RestQuery.t()
+  def search_available_phone_numbers(filters \\ %{}) do
+    get_request(
+      "/search",
+      Map.merge(%{type: "phone-number"}, filters)
+    )
   end
 
   @spec tag_attendee(String.t(), String.t(), [Tag.t()]) :: RestQuery.t()
   def tag_attendee(meeting_id, attendee_id, tags) do
     json_request(
-      "/meetings/#{meeting_id}/attendees/#{attendee_id}/tags?operation=add",
+      "/meetings/#{meeting_id}/attendees/#{attendee_id}/tags",
+      %{
+        operation: "add"
+      },
       %{
         "Tags" => tags
       }
@@ -863,7 +940,10 @@ defmodule ExAws.Chime do
   @spec tag_meeting(String.t(), [Tag.t()]) :: JSON.t()
   def tag_meeting(meeting_id, tags) do
     json_request(
-      "/meetings/#{meeting_id}/tags?operation=add",
+      "/meetings/#{meeting_id}/tags",
+      %{
+        operation: "add"
+      },
       %{
         "Tags" => tags
       }
@@ -873,7 +953,10 @@ defmodule ExAws.Chime do
   @spec tag_resource(String.t(), [Tag.t()]) :: JSON.t()
   def tag_resource(resource_arn, tags) do
     json_request(
-      "/tags?operation=add",
+      "/tags",
+      %{
+        operation: "add"
+      },
       %{
         "ResourceARN" => resource_arn,
         "Tags" => tags
@@ -884,7 +967,10 @@ defmodule ExAws.Chime do
   @spec untag_attendee(String.t(), String.t(), [String.t()]) :: JSON.t()
   def untag_attendee(meeting_id, attendee_id, tag_keys) do
     json_request(
-      "/meetings/#{meeting_id}/attendees/#{attendee_id}/tags?operation=delete",
+      "/meetings/#{meeting_id}/attendees/#{attendee_id}/tags",
+      %{
+        operation: "delete"
+      },
       %{
         "TagKeys" => tag_keys
       }
@@ -894,7 +980,10 @@ defmodule ExAws.Chime do
   @spec untag_meeting(String.t(), [String.t()]) :: JSON.t()
   def untag_meeting(meeting_id, tag_keys) do
     json_request(
-      "/meetings/#{meeting_id}/tags?operation=delete",
+      "/meetings/#{meeting_id}/tags",
+      %{
+        operation: "delete"
+      },
       %{
         "TagKeys" => tag_keys
       }
@@ -904,7 +993,10 @@ defmodule ExAws.Chime do
   @spec untag_resource(String.t(), [String.t()]) :: JSON.t()
   def untag_resource(resource_arn, tag_keys) do
     json_request(
-      "/tags?operation=delete",
+      "/tags",
+      %{
+        operation: "delete"
+      },
       %{
         "ResourceARN" => resource_arn,
         "TagKeys" => tag_keys
@@ -1067,7 +1159,7 @@ defmodule ExAws.Chime do
 
   defp delete_request(action, params \\ %{}), do: rest_request(action, :delete, params)
   defp get_request(action, params \\ %{}), do: rest_request(action, :get, params)
-  defp post_request(action, params \\ %{}), do: rest_request(action, :post, params)
+  defp post_request(action, params), do: rest_request(action, :post, params)
 
   defp rest_request(action, method, params) do
     %RestQuery{
@@ -1079,16 +1171,28 @@ defmodule ExAws.Chime do
     }
   end
 
-  defp json_put_request(path, data), do: json_request(path, data, :put)
+  defp json_put_request(path, params \\ %{}, data), do: json_request(path, params, data, :put)
 
-  defp json_request(path, data, method \\ :post) do
+  defp json_request(path, params \\ %{}, data, method \\ :post) do
     %JSON{
       http_method: method,
+      params: params,
       path: path,
       data: normalise_data(data),
       service: :chime
     }
   end
+
+  defp add_paging(max_results, next_token), do: add_paging(%{}, max_results, next_token)
+
+  defp add_paging(map, max_results, next_token) do
+    map
+    |> maybe_add_param("max-results", max_results)
+    |> maybe_add_param("next-token", next_token)
+  end
+
+  defp maybe_add_param(map, _name, nil), do: map
+  defp maybe_add_param(map, name, value), do: Map.put(map, name, value)
 
   defp parse({:ok, %{body: ""}}, _), do: {:ok, :ok}
 
@@ -1096,7 +1200,9 @@ defmodule ExAws.Chime do
     Jason.decode(body)
   end
 
-  def normalise_data(struct) when is_map(struct) do
+  defp parse({:error, error}, _), do: {:error, error}
+
+  defp normalise_data(struct) when is_map(struct) do
     struct
     |> Map.drop([:__struct__])
     |> Enum.reduce(%{}, fn
@@ -1106,8 +1212,8 @@ defmodule ExAws.Chime do
     end)
   end
 
-  def normalise_data(v) when is_list(v), do: Enum.map(v, &normalise_data/1)
-  def normalise_data(v) when is_binary(v), do: v
-  def normalise_data(v) when is_integer(v), do: v
-  def normalise_data(v) when is_boolean(v), do: v
+  defp normalise_data(v) when is_list(v), do: Enum.map(v, &normalise_data/1)
+  defp normalise_data(v) when is_binary(v), do: v
+  defp normalise_data(v) when is_integer(v), do: v
+  defp normalise_data(v) when is_boolean(v), do: v
 end
