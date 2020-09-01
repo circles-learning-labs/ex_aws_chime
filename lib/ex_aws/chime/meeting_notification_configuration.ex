@@ -11,7 +11,7 @@ defmodule ExAws.Chime.MeetingNotificationConfiguration do
   ]
 
   @type t :: %__MODULE__{
-          sns_topic_arn: String.t(),
-          sqs_queue_arn: String.t()
+          sns_topic_arn: String.t() | nil,
+          sqs_queue_arn: String.t() | nil
         }
 end
