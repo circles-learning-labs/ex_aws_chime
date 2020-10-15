@@ -320,7 +320,7 @@ defmodule ExAws.Chime do
   @spec create_room(String.t(), String.t()) :: JSON.t()
   def create_room(account_id, name) do
     json_request(
-      "/accoutns/#{account_id}/rooms",
+      "/accounts/#{account_id}/rooms",
       %{
         "ClientRequestToken" => UUID.uuid4(),
         "Name" => name
